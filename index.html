@@ -46,7 +46,36 @@ body {
 <body>
 <script src="//d3js.org/d3.v3.min.js"></script>
 <script>
-
+function getSmoothInterpolationFromPoint(data) {
+  return function (d, i, a) {
+      var interpolate = d3.scale.linear()
+          .domain([0,1])
+          .range([d.length , data.length + 1]);
+      return function(t) {
+          var flooredX = Math.floor(interpolate(t));
+          var weight = interpolate(t) - flooredX;
+          var interpolatedLine = data.slice(0, flooredX);
+              
+          if(flooredX > 0 && flooredX < 31) {
+              var weightedLineAverage = data[flooredX].y * weight + data[flooredX-1].y * (1-weight);
+              interpolatedLine.push({"x":interpolate(t)-1, "y":weightedLineAverage});
+              }
+      
+          return line(interpolatedLine);
+          }
+      }
+  }
+function backward_interpolation(data){
+    return function(d, i, a) {
+	var interpolate = d3.scale.linear()
+	    .domain([0,1])
+	    .range([d.length, data.length]);
+	return function(t) {
+	    return line(d.slice(0, Math.floor(interpolate(t))));
+	}
+    }
+}
+//d3.select('.line').transition().duration(3000).attrTween('d', getSmoothInterpolationFromPoint(global.slice(0,950)))
 var margin = {top: 20, right: 50, bottom: 30, left: 50},
     width = 960 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
@@ -165,9 +194,9 @@ d3.tsv("data.tsv", function(error, data) {
       .text("Price ($)");
 
   svg.append("path")
-      .datum(data)
+      .datum(data.slice(0,500))
       .attr("class", "line")
-      .attr("d", line);
+      .attr("d", function(d){ return line(d); });
 /*
   var focus = svg.append("g")
       .attr("class", "focus")
