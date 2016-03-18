@@ -100,9 +100,7 @@ function change() {
     altx.domain([0, data.length-1]);
     if ( date_axis ) {
 	x.domain([0, data.length-1]);
-	try {
-	    t.selectAll('.line').attr('d', altline);
-	} catch (err ) {}
+	t.selectAll('.line').attr('d', altline(data));
 	t1.selectAll('.x.axis.dateaxis').style('opacity', '0');
 	t2 = t1.transition().duration(500);
 	t2.selectAll('.x.axis.altaxis').style('opacity','1');
@@ -110,9 +108,7 @@ function change() {
     }
     else {
 	x.domain([data[0].date, data[data.length-1].date]);
-	try {
-	    t.selectAll('.line').attr('d', line);
-	} catch (err ) {}
+	t.selectAll('.line').attr('d', line(data));
 	t1.selectAll('.x.axis.altaxis').style('opacity', '0');
 	t2 = t1.transition().duration(500);
 	t2.selectAll('.x.axis.dateaxis').style('opacity','1');
